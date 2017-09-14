@@ -1,3 +1,5 @@
+// @flow
+
 import path from 'path';
 import {
   existsSync,
@@ -5,28 +7,29 @@ import {
   createReadStream
 } from 'fs';
 import mimer from 'mimer';
-import getDimensions from 'image-size';
+import * as getDimensions from 'image-size';
 import uri from './template/uri';
 import css from './template/css';
 import Stream from 'stream';
 
-class Api extends Stream {
+export default class Api extends Stream {
+
+  readable: boolean;
+
   constructor() {
     super();
-
     this.readable = true;
   }
 
-  format(fileName, fileContent) {
+  format(fileName: string, fileContent) {
     const fileBuffer = (fileContent instanceof Buffer) ? fileContent : new Buffer(fileContent);
-
     this.base64 = fileBuffer.toString('base64');
     this.createMetadata(fileName);
 
     return this;
   }
 
-  createMetadata(fileName) {
+  createMetadata(fileName: string) {
     this.fileName = fileName;
     this.mimetype = mimer(fileName);
     const { mimetype, base64 = '' } = this;
@@ -35,9 +38,9 @@ class Api extends Stream {
     return this;
   }
 
-  runCallback(handler, err) {
-    if (err) {
-      return handler(err);
+  runCallback(handler, error) {
+    if (error) {
+      return handler(error);
     }
 
     handler.call(this, null, this.content, this);

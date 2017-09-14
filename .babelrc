@@ -1,14 +1,37 @@
 {
-  "presets": [ "env", "stage-0" ],
+  "presets": [
+    [
+      "env", {
+        "targets": {
+          "node": "current"
+        }
+      }
+    ],
+    "stage-0"
+  ],
   "env": {
+    "production": {
+      "plugins": [
+        "transform-class-properties",
+        ["flow-runtime", {
+          "assert": true,
+          "annotate": true
+        }]
+      ]
+    },
+    "development": {
+      "plugins": [
+        "transform-class-properties",
+        ["flow-runtime", {
+          "assert": true,
+          "annotate": true
+        }]
+      ]
+    },
     "test": {
       "plugins": [ "istanbul" ]
     }
   },
   "sourceMaps": true,
-  "compact": false,
-  "plugins": [
-    "transform-class-properties",
-    "transform-flow-strip-types"
-  ]
+  "compact": false
 }

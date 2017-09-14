@@ -1,27 +1,28 @@
+// @flow
+
 import fs from 'fs';
 
-const exists = filename => new Promise(resolve => {
-  fs.exists(filename, resolve);
+export const exists = (filename: string) : Promise<boolean> => new Promise(resolve => {
+  return fs.exists(filename, resolve);
 });
 
-const readFile = filename => new Promise((resolve, reject) => {
-  fs.readFile(filename, 'utf8', (err, data) => {
-    if (err) {
-      reject(err);
+export const readFile = (filename: string) : Promise<string> => new Promise((resolve, reject) => {
+  return fs.readFile(filename, 'utf8', (error: Error, data?: string) => {
+    if (error) {
+      return reject(error);
     } else {
-      resolve(data);
+      return resolve(data);
     }
   });
 });
 
-const writeFile = (filename, content) => new Promise((resolve, reject) => {
-  fs.writeFile(filename, content, (err) => {
-    if (err) {
-      reject(err);
+export const writeFile = (filename: string, content: any) : Promise<void | Error> => new Promise((resolve, reject) => {
+  return fs.writeFile(filename, content, (error: Error) => {
+    if (error) {
+      return reject(error);
     } else {
-      resolve();
+      return resolve();
     }
   });
 });
 
-export default { exists, readFile, writeFile };

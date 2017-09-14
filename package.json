@@ -1,52 +1,24 @@
 {
-  "name": "datauri-build",
-  "private": true,
-  "version": "1.0.5",
-  "scripts": {
-    "test": "npm run check",
-    "check": "npm run lint && npm run spec-prod",
-    "lint": "eslint src",
-    "mocha": "mocha --require test/test.js --recursive --ui bdd --timeout 3000 --reporter spec",
-    "coverage-lcov": "mocha --require test/test.js --recursive --ui bdd --timeout 3000 --reporter mocha-lcov-reporter --require blanket",
-    "coverage-html": "touch test/coverage/results.html && mocha --require test/test.js --recursive --ui bdd --timeout 3000 --reporter html-cov --require blanket > test/coverage/results.html",
-    "coveralls": "npm run coverage-lcov | ./node_modules/coveralls/bin/coveralls.js",
-    "watch": "mocha --require test/test.js --watch --recursive --ui bdd --timeout 3000 --reporter spec",
-    "spec": "npm run mocha",
-    "spec-prod": "npm run build && NODE_ENV=production npm run mocha",
-    "ci": "npm run coverage && npm run coveralls",
-    "clean-deps": "rm -rf node_modules",
-    "clean": "rm -rf lib",
-    "build": "npm run clean && mkdir -p lib && npm run build-datauri && npm run build-cli && npm run pkg-json",
-    "build-datauri": "babel --presets es2015-node4 -d lib/datauri src/datauri && babel --presets es2015 -d lib/datauri/old src/datauri",
-    "build-cli": "babel --presets es2015-node4 -d lib/datauri-cli src/cli && babel --presets es2015 -d lib/datauri-cli/old src/cli",
-    "pkg-json": "mkdir -p lib/datauri && mkdir -p lib/datauri-cli && babel-node tools/pkg-json.js",
-    "deploy": "npm run build && npm publish lib/datauri-cli && npm publish lib/datauri",
-    "preversion": "npm run check",
-    "postversion": "npm run build"
+  "name": "@maggiben/datauri",
+  "version": "2.0.0",
+  "author": "Benjamin Maggi",
+  "description": "Create DataURI scheme from files",
+  "homepage": "https://github.com/maggiben/datauri#readme",
+  "bugs": {
+    "url": "https://github.com/maggiben/datauri/issues"
   },
-  "maintainers": [
-    {
-      "name": "Helder Santana",
-      "email": "heldr@me.com",
-      "url": "heldr.com"
-    },
-    {
-      "name": "Ruy Adorno",
-      "url": "http://ruyadorno.com"
-    },
-    {
-      "name": "Caio Gondim",
-      "email": "me@caiogondim.com",
-      "url": "https://caiogondim.com"
-    }
-  ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/data-uri/datauri.git"
+    "url": "git@github.com:maggiben/datauri.git"
   },
   "engines": {
-    "node": ">= 0.10"
+    "node": ">= 6"
   },
+  "main": "lib/index.js",
+  "files": [
+    "src/index.js",
+    "lib/index.js"
+  ],
   "keywords": [
     "datauri",
     "data uri",
@@ -62,58 +34,89 @@
     "woff",
     "base64"
   ],
-  "author": "Helder Santana",
-  "license": "MIT",
+  "contributors": [ {
+    "name": "Helder Santana",
+    "email": "heldr@me.com",
+    "url": "heldr.com"
+  }, {
+    "name": "Ruy Adorno",
+    "url": "http://ruyadorno.com"
+  }, {
+    "name": "Caio Gondim",
+    "email": "me@caiogondim.com",
+    "url": "https://caiogondim.com"
+  }],
+  "scripts": {
+    "test": "npm run lint && npm run typecheck && npm run spec-prod",
+    "test:spec": "cross-env NODE_ENV=test nyc --all --reporter=lcov --reporter=text mocha --timeout 3000 --check-leaks --bail tests/**/*.spec.js",
+    "test:lint": "eslint --ignore-path .gitignore src; echo",
+    "test:typecheck": "flow check",
+    "test:coverage": "flow coverage",
+    "coverage-lcov": "mocha --require test/test.js --recursive --ui bdd --timeout 3000 --reporter mocha-lcov-reporter --require blanket",
+    "coverage-html": "touch test/coverage/results.html && mocha --require test/test.js --recursive --ui bdd --timeout 3000 --reporter html-cov --require blanket > test/coverage/results.html",
+    "coveralls": "npm run coverage-lcov | ./node_modules/coveralls/bin/coveralls.js",
+    "watch": "mocha --require test/test.js --watch --recursive --ui bdd --timeout 3000 --reporter spec",
+    "patch-release": "npm test && npm version patch && git push --follow-tags",
+    "ci": "npm run coverage && npm run coveralls",
+    "build:clean": "rimraf -rf lib",
+    "build:develop": "babel --watch src --out-dir lib",
+    "build:release": "npm run clean && npm run build:library && npm publish lib",
+    "build:library": "babel src --out-dir lib",
+    "preversion": "npm run check",
+    "postversion": "npm run build"
+  },
+  "nyc": {
+    "require": [
+      "babel-register"
+    ],
+    "sourceMap": false,
+    "instrument": false,
+    "check-coverage": true,
+    "per-file": true,
+    "all": true,
+    "exclude": [
+      "tests/**",
+      "lib/**",
+      "flow-typed/**"
+    ]
+  },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-core": "^6.26.0",
+    "babel-cli": "^7.0.0-beta.0",
+    "babel-core": "^7.0.0-beta.0",
+    "babel-plugin-flow-runtime": "^0.11.1",
+    "babel-plugin-istanbul": "^4.1.4",
+    "babel-plugin-syntax-async-functions": "^6.13.0",
     "babel-plugin-transform-flow-comments": "^6.22.0",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.6.0",
-    "babel-preset-stage-0": "^6.24.1",
-    "blanket": "~1.1.6",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
+    "babel-polyfill": "^7.0.0-beta.0",
+    "babel-preset-env": "^2.0.0-beta.0",
+    "babel-preset-stage-0": "^7.0.0-beta.0",
+    "babel-register": "^7.0.0-beta.0",
     "chai": "^4.1.2",
     "copy-paste": "^1.1.4",
     "coveralls": "~2.11.4",
     "cross-env": "^5.0.5",
     "eslint": "^4.6.1",
+    "eslint-config-airbnb-base": "^12.0.0",
+    "eslint-plugin-import": "^2.7.0",
     "flow-bin": "^0.54.1",
+    "husky": "^0.14.3",
     "image-size": "^0.6.1",
     "istanbul": "^0.4.5",
     "mimer": "^0.2.1",
     "minimist": "^1.2.0",
     "mocha": "^3.5.3",
-    "mocha-lcov-reporter": "1.0.0",
     "nyc": "^11.2.1",
     "rimraf": "^2.6.2",
     "semver": "^5.4.1",
     "sinon": "^3.2.1"
   },
-  "config": {
-    "blanket": {
-      "pattern": "datauri/lib/"
-    }
+  "dependencies": {
+    "flow-runtime": "^0.14.0"
   },
-  "datauri-build": {
-    "datauri": {
-      "dependencies": [
-        "image-size",
-        "mimer",
-        "semver"
-      ],
-      "description": "Create DataURI scheme easily"
-    },
-    "datauri-cli": {
-      "dependencies": [
-        "minimist",
-        "copy-paste",
-        "semver"
-      ],
-      "bin": {
-        "datauri": "./index.js"
-      },
-      "description": "Create DataURI scheme using terminal"
-    }
+  "directories": {
+    "doc": "docs",
+    "test": "test"
   },
-  "dependencies": {}
+  "license": "MIT"
 }

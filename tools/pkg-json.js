@@ -1,4 +1,5 @@
-'use strict';
+// @flow
+
 import pkg from '../package.json';
 import fs from './fs';
 
